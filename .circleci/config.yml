@@ -38,5 +38,8 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
-      # run tests!
       - run: mvn integration-test
+
+      - setup_remote_docker
+
+      - run: mvn package -Pnative -Dnative-image.docker-build=true
