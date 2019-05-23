@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kickerbox-teams-v1
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: kickerbox-teams
+      labels:
+        app: kickerbox-teams
+        version: "1"
+    spec:
+      containers:
+        - image: eu.gcr.io/vaulted-gift-240614/kickerbox-teams:0.0.1-dev
+          name: app
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: data-service-secret
+                  key: password
+            - name: SPRING_PROFILES_ACTIVE
+              value: gke
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kickerbox-teams
+spec:
+  type: LoadBalancer
+  selector:
+    app: kickerbox-teams
+    version: "1"
+  ports:
+    - port: 80
+      targetPort: 8080
